@@ -21,22 +21,41 @@ Servo myServo; // objeto de uso para controlar o servo motor está relacionado c
 //variaveis e constante para medição do logico da entrada digital do sensor microfone KY-037
 //const int OUT_PIN = 8;  //entrada do valor digital
 const int microfonePin = A0;  // Pino analógico onde o microfone está conectado (Microfone analogico)
+
+// Variaveis relacionado ao intervalos de amostras (Valor medio)
 const int amostra = 2000; // acada  mili segundos ele gera uma amostra (Precisa definir apos a logica)
 unsigned long tempo_atual;  // salva o tempo atual da função millis()
 unsigned long tempo_anterior = 0; //Armazena o valor anterior de millis() para comparação
 unsigned long tempo_decorrido = 0;  // Variavel para calcular o tempo decorrido desde a última amostragem
-
 int guarda_amostra = 0;  // variavel para armazenar as mostras
 float soma_amostras = 0;  // variavel para soma a amostras acumuladas dentro loop
 
+//Variaveis relacionadas com os nvalores maximos e minimos (Resolução de 10 bits)
 int pico_minimo = 1023;
 int pico_maximo = 0;
+
+//Inciando comunicação via wifi com esp8266 declacando variaveis de acesso:
+#include <ESP8266WiFi.h>
+
+const char* ssid = "A";
+const char* password = "12345678";
+
+//Iniciando comunicação via protocolo HTPP:
+#include <ESP8266WebServer.h>
+
+ESP8266WebServer server(80);
 
 
 
 void setup() {
   Serial.begin(9600);
-
+//Inicializando comunicação Wifi
+WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected to WiFi");
   /*=============================================SENSOR MICROFONE =====================================================================*/
   // pinMode(OUT_PIN, INPUT); para entrada digital
 
