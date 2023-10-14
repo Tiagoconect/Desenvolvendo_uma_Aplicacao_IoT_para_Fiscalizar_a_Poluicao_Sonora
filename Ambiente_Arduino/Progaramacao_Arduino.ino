@@ -1,16 +1,3 @@
-/* Bibliotecas para produzir graficos e relatorios se for preciso (pesquisar mais sobre elas)
-  #include <Adafruit_ILI9341.h>
-  #include <Adafruit_GFX.h>
-  #include <Adafruit_GrayOLED.h>
-  #include <Adafruit_SPITFT.h>
-  #include <Adafruit_SPITFT_Macros.h>
-  #include <gfxfont.h>
-*/
-
-// micro anologico: https://arduinobymyself.blogspot.com/2012/04/vu-meter-com-arduino.html
-// micro anologico com CI: http://icexduino.blogspot.com/2011/06/teste_26.html
-
-
 #include <Servo.h>
 
 
@@ -54,12 +41,7 @@ void loop() {
   tempo_atual = millis(); // a função millis captura a hora atual
   tempo_decorrido = tempo_atual - tempo_anterior;
 
-  //Leitura e soma das amostras entrada analogica
-
-  int valor_analogico = analogRead(microfonePin);     // Lê o valor analógico do microfone
-  soma_amostras += valor_analogico;                  // atribuiçãop da variavel valo_analogico na soma de amostra
-  guarda_amostra++;                                   // Incremetação
-
+  
 
   /*
      Fazer estrutura de seleção conforme a lesgislação
@@ -67,10 +49,10 @@ void loop() {
      niveis por area: https://blog.vprimoveis.com.br/wp-content/uploads/2021/07/Tabela-de-ruido-ABNT.png
   */
 
-
+  float valor_medio = sampleMicrophone();
+  
   if (tempo_decorrido > amostra) {  // Se o tempo decorrido for maior que a amostra, imprima o valor médio
-    if (guarda_amostra > 0) {
-      float valor_medio = soma_amostras / guarda_amostra;
+    
       Serial.println("Valor Médio do Microfone analogico): " + String(valor_medio));
       // Converte o valor médio em dB usando a função converteDB
       float dBValor = converte_DB(valor_medio);
@@ -83,7 +65,7 @@ void loop() {
       //int horaAtual = hour();  //variavel para registrar a hora atual e enviar para função 'verificarCondicoes'
       int horaAtual = (tempo_atual / 3600000) % 24;
       verificarCondicoes(dBValor, horaAtual);  // Chamando a condição de saida da função de acordo com o valor medio lido pelo microfone em Db
-    }
+    
 
     // Zerarando as amostras e o tempo e renicianso o loop
     soma_amostras = 0;
@@ -131,6 +113,21 @@ float converte_DB(float valor_medio) {
   //float dBValor = (valor_medio+83.2073) / 11.003;
 
   return dBValor;
+}
+
+/*=====================================================================================================================================*/
+
+
+/*=============================================LEITURA DOS VALORES MEDIO DAS AMOSTRAS================================================*/
+
+float sampleMicrophone() {
+  //Leitura e soma das amostras entrada analogica
+
+  int valor_analogico = analogRead(microfonePin);     // Lê o valor analógico do microfone
+  soma_amostras += valor_analogico;                  // atribuiçãop da variavel valo_analogico na soma de amostra
+  guarda_amostra++;                                   // Incremetação
+
+  return soma_amostras / guarda_amostra;
 }
 
 /*=====================================================================================================================================*/
