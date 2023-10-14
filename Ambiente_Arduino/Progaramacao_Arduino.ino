@@ -1,3 +1,16 @@
+/* Bibliotecas para produzir graficos e relatorios se for preciso (pesquisar mais sobre elas)
+  #include <Adafruit_ILI9341.h>
+  #include <Adafruit_GFX.h>
+  #include <Adafruit_GrayOLED.h>
+  #include <Adafruit_SPITFT.h>
+  #include <Adafruit_SPITFT_Macros.h>
+  #include <gfxfont.h>
+*/
+
+// micro anologico: https://arduinobymyself.blogspot.com/2012/04/vu-meter-com-arduino.html
+// micro anologico com CI: http://icexduino.blogspot.com/2011/06/teste_26.html
+
+
 #include <Servo.h>
 
 
@@ -15,6 +28,10 @@ unsigned long tempo_decorrido = 0;  // Variavel para calcular o tempo decorrido 
 
 int guarda_amostra = 0;  // variavel para armazenar as mostras
 float soma_amostras = 0;  // variavel para soma a amostras acumuladas dentro loop
+
+int pico_minimo = 1023;
+int pico_maximo = 0;
+
 
 
 void setup() {
@@ -50,14 +67,20 @@ void loop() {
   */
 
   float valor_medio = media_amostral();
+  valores_picos();
   
   if (tempo_decorrido > amostra) {  // Se o tempo decorrido for maior que a amostra, imprima o valor médio
+    
     
       Serial.println("Valor Médio do Microfone analogico): " + String(valor_medio));
       // Converte o valor médio em dB usando a função converteDB
       float dBValor = converte_DB(valor_medio);
       Serial.println("Valor Médio do Microfone analogico em Db): " + String( dBValor));
 
+       Serial.println("Pico Mínimo: " + String(pico_minimo));
+       Serial.println("Pico Maximo: " + String(pico_maximo));
+   
+       
       /*
               Logica parte (basica) em relação a diretrizes do Programa de Silêncio Urbano (PSIU), Lei 15.133 link:https://novabrasilfm.com.br/especiais/cidadania/voce-conhece-a-lei-do-psiu/#:~:text=Os%20limites%20de%20ru%C3%ADdo%20s%C3%A3o,entre%2045%20e%2055%20decib%C3%A9is.
       */
@@ -71,6 +94,8 @@ void loop() {
     soma_amostras = 0;
     guarda_amostra = 0;
     tempo_anterior = tempo_atual;
+    pico_minimo = 1023;
+    pico_maximo = 0;
   }
 
 
@@ -135,7 +160,16 @@ float media_amostral() {
 
 /*=============================================LEITURA DOS VALORES PERIODICOS DO SENSOR================================================*/
 
+void valores_picos() {
+  int valor_analogico = analogRead(microfonePin);
 
+  if (valor_analogico > pico_maximo) {
+    pico_maximo = valor_analogico;
+  }
+  if (valor_analogico < pico_minimo) {
+    pico_minimo = valor_analogico;
+  }
+}
 
 /*=====================================================================================================================================*/
 
