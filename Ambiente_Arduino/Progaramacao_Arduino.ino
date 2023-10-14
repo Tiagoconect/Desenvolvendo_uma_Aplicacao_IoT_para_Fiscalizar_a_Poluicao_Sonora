@@ -49,7 +49,7 @@ void loop() {
      niveis por area: https://blog.vprimoveis.com.br/wp-content/uploads/2021/07/Tabela-de-ruido-ABNT.png
   */
 
-  float valor_medio = sampleMicrophone();
+  float valor_medio = media_amostral();
   
   if (tempo_decorrido > amostra) {  // Se o tempo decorrido for maior que a amostra, imprima o valor médio
     
@@ -120,7 +120,7 @@ float converte_DB(float valor_medio) {
 
 /*=============================================LEITURA DOS VALORES MEDIO DAS AMOSTRAS================================================*/
 
-float sampleMicrophone() {
+float media_amostral() {
   //Leitura e soma das amostras entrada analogica
 
   int valor_analogico = analogRead(microfonePin);     // Lê o valor analógico do microfone
