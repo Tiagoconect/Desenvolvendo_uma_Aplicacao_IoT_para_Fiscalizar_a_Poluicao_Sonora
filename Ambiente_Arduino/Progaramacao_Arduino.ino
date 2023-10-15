@@ -36,26 +36,33 @@ int pico_maximo = 0;
 
 //Inciando comunicação via wifi com esp8266 declacando variaveis de acesso:
 #include <ESP8266WiFi.h>
-
 const char* ssid = "A";
 const char* password = "12345678";
 
-//Iniciando comunicação via protocolo HTPP:
+//Iniciando comunicação via protocolo HTPP e a criação da pagina web:
 #include <ESP8266WebServer.h>
-
+#include <WiFiClient.h>
+#include "index.h" // Conteudo da pagina WEB
 ESP8266WebServer server(80);
-
 
 
 void setup() {
   Serial.begin(9600);
 //Inicializando comunicação Wifi
 WiFi.begin(ssid, password);
+
+//Verificando a conexão com a rede
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
+  Serial.println("Servidor iniciado"); 
+  Serial.print("IP para se conectar com o radar");
+  Serial.print("http://"); 
+  Serial.println(WiFi.localIP()); 
+  server.on("/", HTTP_GET, paginaWeb);
+  server.begin();
   /*=============================================SENSOR MICROFONE =====================================================================*/
   // pinMode(OUT_PIN, INPUT); para entrada digital
 
@@ -137,6 +144,9 @@ void loop() {
 
 
   /*================================================================================================================================*/
+
+  
+  server.handleClient();
 
 
 }
@@ -231,3 +241,9 @@ void verificarCondicoes(float dBValor, int horaAtual) {
 
 
 /*=====================================================================================================================================*/
+
+//Função para ler conteudo pagina web principal e abrir assim que a comicação do servidor web é estabelecida
+void paginaWeb() {
+  String s = MAIN_page; // Le o conteudo HTML
+  server.send(200, "text/html", s); // Envia a pagina web
+}
