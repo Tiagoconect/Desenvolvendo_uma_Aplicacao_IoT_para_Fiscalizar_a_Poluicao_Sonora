@@ -36,7 +36,7 @@ int pico_maximo = 0;
 
 //Inciando comunicação via wifi com esp8266 declacando variaveis de acesso:
 #include <ESP8266WiFi.h>
-const char* ssid = "tiago";
+const char* ssid = "tiagi";
 const char* password = "ajux2896";
 
 //Iniciando comunicação via protocolo HTPP e a criação da pagina web:
@@ -44,6 +44,7 @@ const char* password = "ajux2896";
 #include <WiFiClient.h>
 #include "index.h" // Conteudo da pagina WEB
 ESP8266WebServer server(80);
+
 
 //Iniciando comunicação com firebase
 #include <Arduino.h>
@@ -55,8 +56,6 @@ ESP8266WebServer server(80);
 FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig config;
-
-
 
 void setup() {
   Serial.begin(9600);
