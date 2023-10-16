@@ -1,0 +1,8 @@
+Para poder progra a placa esp 8266 no IDE Arduino é necessario  adicionar o arquivo
+ gerenciador de placa no link a seguir:
+
+http://arduino.esp8266.com/stable/package_esp8266com_index.json
+
+Para isso, abra o Arduino IDE e vá para Arquivo>Preferências (Figura 5). Em seguida, 
+copie a URL abaixo na caixa de URLs adicionais para Gerenciadores de Placas, localizada no 
+inferior da janela.
