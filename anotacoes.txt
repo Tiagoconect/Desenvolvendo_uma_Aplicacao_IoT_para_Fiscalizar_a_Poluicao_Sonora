@@ -6,3 +6,7 @@ http://arduino.esp8266.com/stable/package_esp8266com_index.json
 Para isso, abra o Arduino IDE e vá para Arquivo>Preferências (Figura 5). Em seguida, 
 copie a URL abaixo na caixa de URLs adicionais para Gerenciadores de Placas, localizada no 
 inferior da janela.
+
+Configurando firebase
+link: https://douglasgaspar.wordpress.com/2021/04/23/utilizando-esp8266-nodemcu-com-realtime-database-do-firebase/
+link: https://www.youtube.com/watch?v=aO92B-K4TnQ
