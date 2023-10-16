@@ -33,10 +33,14 @@ float soma_amostras = 0;  // variavel para soma a amostras acumuladas dentro loo
 //Variaveis relacionadas com os nvalores maximos e minimos (Resolução de 10 bits)
 int pico_minimo = 1023;
 int pico_maximo = 0;
+unsigned long tempo_pico_anterior = 0;
+float frequencia_picos = 0;
+float tolerancia_pico= 1.05;
+
 
 //Inciando comunicação via wifi com esp8266 declacando variaveis de acesso:
 #include <ESP8266WiFi.h>
-const char* ssid = "tiagi";
+const char* ssid = "tiago";
 const char* password = "ajux2896";
 
 //Iniciando comunicação via protocolo HTPP e a criação da pagina web:
@@ -45,17 +49,6 @@ const char* password = "ajux2896";
 #include "index.h" // Conteudo da pagina WEB
 ESP8266WebServer server(80);
 
-
-//Iniciando comunicação com firebase
-#include <Arduino.h>
-#include <Firebase_ESP_Client.h>
-#define API_KEY "AIzaSyCROmPojQcru9g3kgbQf5hc_-KXU1RaJ78"
-#define DATABASE_URL "https://comunicacao-esp8266-e-firebase-default-rtdb.firebaseio.com/" 
-#define USER_EMAIL "tiagodois.0@gmail.com"
-#define USER_PASSWORD "80432162"
-FirebaseData fbdo;
-FirebaseAuth auth;
-FirebaseConfig config;
 
 void setup() {
   Serial.begin(9600);
@@ -68,19 +61,7 @@ WiFi.begin(ssid, password);
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
-
-  // Inicializando a configuração do Firebase
-  config.api_key = API_KEY;
-  auth.user.email = USER_EMAIL;
-  auth.user.password = USER_PASSWORD;
-  config.database_url = DATABASE_URL;
-
-  // Conectaando ao firebase
-  Firebase.begin(&config, &auth);
-  Serial.println("Conectado ao Firebase");
   Serial.println("Servidor iniciado"); 
-
-  // Conectando ao servidor web
   Serial.print("IP para se conectar com o radar");
   Serial.print("http://"); 
   Serial.println(WiFi.localIP()); 
@@ -137,14 +118,20 @@ void loop() {
       //int horaAtual = hour();  //variavel para registrar a hora atual e enviar para função 'verificarCondicoes'
       int horaAtual = (tempo_atual / 3600000) % 24;
       verificarCondicoes(dBValor, horaAtual);  // Chamando a condição de saida da função de acordo com o valor medio lido pelo microfone em Db
+
+     if (pico_maximo > tolerancia_pico * amostra && tempo_pico_anterior > 0) {
+      frequencia_picos = 1000.0 / (tempo_atual - tempo_pico_anterior); // Calculate frequency in Hz
+      Serial.println("Frequência dos picos (Hz): " + String(frequencia_picos));
+    }
     
 
-    // Zerarando as amostras e o tempo e renicianso o loop
+    // Zerarando as amostras, os valores de piuco e tempo e renicianso o loop
     soma_amostras = 0;
     guarda_amostra = 0;
     tempo_anterior = tempo_atual;
     pico_minimo = 1023;
     pico_maximo = 0;
+    tempo_pico_anterior = 0;
   }
 
 
@@ -170,21 +157,6 @@ void loop() {
 
   
   server.handleClient();
-
-  // Enviando valores para o banco de dados do firebase
-  if (Firebase.ready()) {
-    String path = "";
-    Serial.printf("Enviando valor do sensor para o Firebase: %d\n", );
-    if (Firebase.RTDB.setInt(&fbdo, path, )) {
-      Serial.println("Valor do sensor enviado com sucesso!");
-    } else {
-      Serial.print("Falha no envio do valor do sensor: ");
-      Serial.println(fbdo.errorReason());
-    }
-  }
-
-  
-  delay(10000); //aguarda 10 segundos
 
 
 }
@@ -229,9 +201,9 @@ float media_amostral() {
 
 void valores_picos() {
   int valor_analogico = analogRead(microfonePin);
-
   if (valor_analogico > pico_maximo) {
     pico_maximo = valor_analogico;
+    tempo_pico_anterior = millis(); // Record the time of the peak
   }
   if (valor_analogico < pico_minimo) {
     pico_minimo = valor_analogico;
