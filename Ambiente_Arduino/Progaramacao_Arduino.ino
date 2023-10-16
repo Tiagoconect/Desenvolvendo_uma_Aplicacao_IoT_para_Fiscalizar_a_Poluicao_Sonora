@@ -36,14 +36,26 @@ int pico_maximo = 0;
 
 //Inciando comunicação via wifi com esp8266 declacando variaveis de acesso:
 #include <ESP8266WiFi.h>
-const char* ssid = "A";
-const char* password = "12345678";
+const char* ssid = "tiago";
+const char* password = "ajux2896";
 
 //Iniciando comunicação via protocolo HTPP e a criação da pagina web:
 #include <ESP8266WebServer.h>
 #include <WiFiClient.h>
 #include "index.h" // Conteudo da pagina WEB
 ESP8266WebServer server(80);
+
+//Iniciando comunicação com firebase
+#include <Arduino.h>
+#include <Firebase_ESP_Client.h>
+#define API_KEY "AIzaSyCROmPojQcru9g3kgbQf5hc_-KXU1RaJ78"
+#define DATABASE_URL "https://comunicacao-esp8266-e-firebase-default-rtdb.firebaseio.com/" 
+#define USER_EMAIL "tiagodois.0@gmail.com"
+#define USER_PASSWORD "80432162"
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+
 
 
 void setup() {
@@ -57,7 +69,19 @@ WiFi.begin(ssid, password);
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
+
+  // Inicializando a configuração do Firebase
+  config.api_key = API_KEY;
+  auth.user.email = USER_EMAIL;
+  auth.user.password = USER_PASSWORD;
+  config.database_url = DATABASE_URL;
+
+  // Conectaando ao firebase
+  Firebase.begin(&config, &auth);
+  Serial.println("Conectado ao Firebase");
   Serial.println("Servidor iniciado"); 
+
+  // Conectando ao servidor web
   Serial.print("IP para se conectar com o radar");
   Serial.print("http://"); 
   Serial.println(WiFi.localIP()); 
@@ -147,6 +171,21 @@ void loop() {
 
   
   server.handleClient();
+
+  // Enviando valores para o banco de dados do firebase
+  if (Firebase.ready()) {
+    String path = "";
+    Serial.printf("Enviando valor do sensor para o Firebase: %d\n", );
+    if (Firebase.RTDB.setInt(&fbdo, path, )) {
+      Serial.println("Valor do sensor enviado com sucesso!");
+    } else {
+      Serial.print("Falha no envio do valor do sensor: ");
+      Serial.println(fbdo.errorReason());
+    }
+  }
+
+  
+  delay(10000); //aguarda 10 segundos
 
 
 }
