@@ -1,3 +1,10 @@
+//Servidor NTP para manter a hora e a data atualizada via wifi
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+const char* ntpServerName = " br.pool.ntp.org"; // outros possiveis se der errado: link: https://ntp.br/conteudo/ntp/
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, ntpServerName);
+
 /* Bibliotecas para produzir graficos e relatorios se for preciso (pesquisar mais sobre elas)
   #include <Adafruit_ILI9341.h>
   #include <Adafruit_GFX.h>
@@ -67,6 +74,11 @@ WiFi.begin(ssid, password);
   Serial.println(WiFi.localIP()); 
   server.on("/", HTTP_GET, paginaWeb);
   server.begin();
+
+  
+  // Inicializando o cliente NTP
+  timeClient.begin();
+  timeClient.setTimeOffset(3*3600); // fuso horário
   /*=============================================SENSOR MICROFONE =====================================================================*/
   // pinMode(OUT_PIN, INPUT); para entrada digital
 
@@ -109,6 +121,9 @@ void loop() {
 
        Serial.println("Pico Mínimo: " + String(pico_minimo));
        Serial.println("Pico Maximo: " + String(pico_maximo));
+
+       // Chamando a função de tratamento de informações
+      tratarInformacoes(tempo_atual, valor_medio, pico_maximo, frequencia_picos);
    
        
       /*
@@ -122,6 +137,8 @@ void loop() {
      if (pico_maximo > tolerancia_pico * amostra && tempo_pico_anterior > 0) {
       frequencia_picos = 1000.0 / (tempo_atual - tempo_pico_anterior); // Calculate frequency in Hz
       Serial.println("Frequência dos picos (Hz): " + String(frequencia_picos));
+
+     
     }
     
 
@@ -256,4 +273,30 @@ void verificarCondicoes(float dBValor, int horaAtual) {
 void paginaWeb() {
   String s = MAIN_page; // Le o conteudo HTML
   server.send(200, "text/html", s); // Envia a pagina web
+}
+
+
+//Tratando os dados principais
+
+void tratarInformacoes(unsigned long tempoAtual, int valor_medio, int picoMaximo, float frequenciaPicos) {
+ // condição minima para o dada ser importante (ja que para os limite estabelecidos 45 dD é o menor valor)
+  if (valor_medio > 40) {
+  
+    frequenciaPicos *= 100;
+
+    //Obetentado a atualização data em hora
+    timeClient.update();
+    String dataHoraAtual = timeClient.getFormattedTime();
+
+    Serial.print("Informações tratadas - Tempo Atual: ");
+    Serial.print(tempoAtual);
+    Serial.print(", Media amostral: ");
+    Serial.print(valor_medio);
+    Serial.print(", Pico Máximo: ");
+    Serial.print(picoMaximo);
+    Serial.print(", Frequência: ");
+    Serial.print(frequenciaPicos);
+    Serial.print(", Data e Hora Atuais: ");
+    Serial.println(dataHoraAtual);
+  }
 }
