@@ -18,12 +18,6 @@ NTPClient timeClient(ntpUDP, ntpServerName);
 // micro anologico com CI: http://icexduino.blogspot.com/2011/06/teste_26.html
 
 
-#include <Servo.h>
-
-
-
-
-Servo myServo; // objeto de uso para controlar o servo motor está relacionado com a biblioteca Servo.h
 
 //variaveis e constante para medição do logico da entrada digital do sensor microfone KY-037
 //const int OUT_PIN = 8;  //entrada do valor digital
@@ -67,10 +61,21 @@ FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig config;
 
+//Biblioteca para servo motor
+#include <Servo.h>
+Servo myServo; // objeto de uso para controlar o servo motor está relacionado com a biblioteca Servo.h
+struct Amostra {
+  int angulo;
+  int valorMedio;
+};
+
+const int numAmostras = 10;
+Amostra amostras[numAmostras];
+int anguloServo = 0;
 
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 //Inicializando comunicação Wifi
 WiFi.begin(ssid, password);
 
@@ -109,7 +114,8 @@ WiFi.begin(ssid, password);
 
 
   /*=============================================SERVO MOTOR============================================================================*/
-  myServo.attach(9); // o servo motor está conctado no pino digital 9
+  myServo.attach(1); // o servo motor está conctado no pino digital 9
+  posicaoAngularAmostra();
 
 
   /*====================================================================================================================================*/
@@ -135,6 +141,9 @@ void loop() {
   valores_picos();
   
   if (tempo_decorrido > amostra) {  // Se o tempo decorrido for maior que a amostra, imprima o valor médio
+
+       // Movendo o servo  em 10 graus para cada amostra
+       moverServo();
     
     
       Serial.println("Valor Médio do Microfone analogico): " + String(valor_medio));
@@ -146,7 +155,7 @@ void loop() {
        Serial.println("Pico Maximo: " + String(pico_maximo));
 
        // Chamando a função de tratamento de informações
-      tratarInformacoes(tempo_atual, valor_medio, pico_maximo, frequencia_picos);
+      tratarInformacoes(tempo_atual, valor_medio, pico_maximo, frequencia_picos, anguloServo);
    
        
       /*
@@ -199,18 +208,7 @@ void loop() {
   server.handleClient();
 
    // Enviando valores para o banco de dados do firebase
-  if (Firebase.ready()) {
-    String path = "";
-    Serial.printf("Enviando valor do sensor para o Firebase: %d\n", );
-    if (Firebase.RTDB.setInt(&fbdo, path, )) {
-      Serial.println("Valor do sensor enviado com sucesso!");
-    } else {
-      Serial.print("Falha no envio do valor do sensor: ");
-      Serial.println(fbdo.errorReason());
-    }
-  }
-  
-  delay(10000); //aguarda 10 segundos
+ 
 
 
 
@@ -316,7 +314,7 @@ void paginaWeb() {
 
 //Tratando os dados principais
 
-void tratarInformacoes(unsigned long tempoAtual, int valor_medio, int picoMaximo, float frequenciaPicos) {
+void tratarInformacoes(unsigned long tempoAtual, int valor_medio, int picoMaximo, float frequenciaPicos, int anguloServo) {
  // condição minima para o dada ser importante (ja que para os limite estabelecidos 45 dD é o menor valor)
   if (valor_medio > 40) {
   
@@ -334,7 +332,47 @@ void tratarInformacoes(unsigned long tempoAtual, int valor_medio, int picoMaximo
     Serial.print(picoMaximo);
     Serial.print(", Frequência: ");
     Serial.print(frequenciaPicos);
+    Serial.print(", Posição: ");
+    Serial.print(anguloServo);
     Serial.print(", Data e Hora Atuais: ");
     Serial.println(dataHoraAtual);
+
+    anguloServo = myServo.read();
+    for (int i = 0; i < numAmostras; i++) {
+      if (amostras[i].angulo == anguloServo) {
+        amostras[i].valorMedio = valor_medio;
+        break;
+      }
+    }
   }
 }
+
+//
+void posicaoAngularAmostra() {
+  for (int i = 0; i < numAmostras; i++) {
+    amostras[i].angulo = i * (180 / (numAmostras - 1));
+    amostras[i].valorMedio = 0;
+  }
+}
+
+void moverServo() {
+  static int anguloServo = 0; // Ângulo do servo (inicializado apenas na primeira chamada)
+  
+  // Movendo o servo em 10 graus
+  anguloServo += 10;
+  
+  // Limitando o ângulo entre 0 e 180 graus
+  if (anguloServo > 180) {
+    anguloServo = 0;
+  }
+
+  // Mova o servo para a posição atual
+  myServo.write(anguloServo);
+
+  // Você pode adicionar uma saída de depuração para ver o ângulo atual
+  Serial.print("Servo movido para o ângulo: ");
+  Serial.println(anguloServo);
+}
+
+
+
