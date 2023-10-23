@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Página de Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.7);
+            width: 80%;
+            max-width: 800px;
+            display: flex;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-container {
+            flex: 1;
+            background-image: url('sua-imagem.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .login-container {
+            flex: 1;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #fff;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .btn-container {
+            margin-top: 20px;
+        }
+
+        .btn {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .btn.cadastro {
+            background-color: #28A745;
+        }
+        .image-container {
+            flex: 1;
+            background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTg7rRmwDbO_DYV-xB1vyeu0fqpwwvDyAIQ5g&usqp=CAU'); /* Substitua pela URL da sua imagem */
+            background-size: cover;
+            background-position: center;
+        }         
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="image-container"></div>
+        <div class="login-container">
+            <h1>Login</h1>
+            <form id="login-form" action="seu_script_de_login.php" method="post">
+                <div class="form-group">
+                    <label for="username">Usuário:</label>
+                    <input type="text" id="username" name="username" placeholder="Seu Nome de Usuário" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" name="password" placeholder="Sua Senha" required>
+                </div>
+                <div class="btn-container">
+                    <input type="submit" class="btn" value="Login">
+                    <input type="button" class="btn cadastro" value="Cadastro" onclick="register()">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function register() {
+            
+            alert("Você está se cadastrando.");
+        }
+    </script>
+</body>
+</html>
