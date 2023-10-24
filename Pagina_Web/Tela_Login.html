@@ -87,7 +87,7 @@
         <div class="image-container"></div>
         <div class="login-container">
             <h1>Login</h1>
-            <form id="login-form" action="seu_script_de_login.php" method="post">
+            <form id="login-form" method="post">
                 <div class="form-group">
                     <label for="username">Usuário:</label>
                     <input type="text" id="username" name="username" placeholder="Seu Nome de Usuário" required>
@@ -97,8 +97,8 @@
                     <input type="password" id="password" name="password" placeholder="Sua Senha" required>
                 </div>
                 <div class="btn-container">
-                    <input type="submit" class="btn" value="Login">
-                    <input type="button" class="btn cadastro" value="Cadastro" onclick="register()">
+                    <input type="submit" class="btn" value="Login" onclick="redirectToMain()">
+                    <input type="button" class="btn cadastro" value="Cadastro" onclick="redirectToLogin()">
                 </div>
             </form>
         </div>
@@ -109,6 +109,17 @@
             
             alert("Você está se cadastrando.");
         }
+
+        function redirectToMain() {
+            // Redirecione para a tela principal, substitua "tela_principal.html" pelo URL correto.
+         window.location.href = "Tela_Principla.html";
+        }
+
+        function redirectToLogin() {
+        // Redirecione para a tela de login, substitua "tela_login.html" pelo URL correto.
+        window.location.href = "Tela_Cadastro.html";
+       }
+
     </script>
 </body>
 </html>
